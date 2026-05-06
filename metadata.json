@@ -1,0 +1,5 @@
+{
+  "name": "SmartMarket Estimator",
+  "description": "Um aplicativo inteligente de lista de compras que utiliza IA para estimar preços de produtos em tempo real baseados em dados da internet.",
+  "requestFramePermissions": []
+}
