@@ -29,9 +29,10 @@ export const estimateProductPrice = async (productName: string): Promise<PriceRe
       ] as any,
     }, { apiVersion: 'v1beta' });
 
-    const prompt = `Pesquise o preço médio atual do produto "${productName}" em supermercados no Brasil (varejo comum). 
+    const prompt = `Pesquise o preço médio atual do produto "${productName}" em supermercados no Brasil. 
+    Dê prioridade aos preços praticados no Carrefour (mercado.carrefour.com.br), mas também considere outros grandes varejistas para comparação.
     Seja realista e conservador. Ignore promoções extremas ou preços de atacado.
-    Retorne APENAS o valor numérico (ex: 15.90). Não use símbolo de moeda. Não escreva texto explicativo.`;
+    Retorne APENAS o valor numérico médio encontrado (ex: 15.90). Não use símbolo de moeda. Não escreva texto explicativo.`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
