@@ -19,10 +19,10 @@ export const estimateProductPrice = async (productName: string): Promise<PriceRe
 
     const genAI = new GoogleGenerativeAI(apiKey);
     
-    // Using the exact model and version from AI Studio apps
+    // Using Gemini 2.0 Flash as confirmed by diagnostic tests for this key
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash"
-    });
+      model: "gemini-2.0-flash"
+    }, { apiVersion: 'v1beta' });
 
     const prompt = `Você é um assistente de compras. Pesquise o preço médio atual do produto: "${productName}" em supermercados brasileiros (foco Carrefour).
     Responda APENAS o valor numérico, usando ponto como separador decimal.
