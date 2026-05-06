@@ -4,6 +4,7 @@ export interface Product {
   name: string;
   category: string;
   image?: string;
+  suggestedPrice?: number;
 }
 
 export interface GroundingSource {
@@ -17,6 +18,7 @@ export interface CartItem extends Product {
   isLoadingPrice: boolean;
   sources?: GroundingSource[];
   error?: string;
+  suggestedPrice?: number;
 }
 
 export interface CartSummary {

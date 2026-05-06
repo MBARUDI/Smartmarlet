@@ -101,20 +101,34 @@ const Cart: React.FC<CartProps> = ({ items, onRemove, onUpdateQuantity, onUpdate
                          <span className="text-[10px] font-bold uppercase">Buscando...</span>
                        </div>
                      ) : (item.estimatedUnitPrice === 0 || item.estimatedUnitPrice === null) ? (
-                       <div className="bg-orange-50 border border-orange-200 p-2 rounded-lg mt-1 flex flex-col gap-1">
+                       <div className="bg-orange-50 border border-orange-200 p-2 rounded-lg mt-1 flex flex-col gap-2">
                           <div className="flex items-center gap-1 text-orange-700">
                              <ExclamationCircleIcon className="w-3.5 h-3.5" />
                              <span className="text-[10px] font-bold uppercase tracking-tight">
                                {item.error || 'Preço não encontrado'}
                              </span>
                           </div>
+                          
+                          {item.suggestedPrice && (
+                            <div className="bg-white/50 border border-orange-100 rounded p-1.5 flex flex-col gap-1">
+                               <span className="text-[9px] text-slate-500 font-bold uppercase">Sugestão do Mercado:</span>
+                               <button 
+                                 onClick={() => onUpdatePrice(item.id, item.suggestedPrice!)}
+                                 className="text-xs font-black text-orange-600 hover:text-orange-700 flex justify-between items-center group"
+                               >
+                                 {formatCurrency(item.suggestedPrice)}
+                                 <span className="text-[8px] bg-orange-100 px-1 rounded group-hover:bg-orange-200 transition-colors">USAR ESTE</span>
+                               </button>
+                            </div>
+                          )}
+
                           <div className="flex items-center bg-white border border-orange-200 rounded px-2 py-1">
                             <span className="text-[10px] font-bold text-slate-400 mr-1">R$</span>
                             <input 
                               type="number"
                               step="0.01"
                               placeholder="0,00"
-                              className="w-20 text-xs font-bold text-slate-800 outline-none"
+                              className="w-full text-xs font-bold text-slate-800 outline-none"
                               onBlur={(e) => {
                                 const val = parseFloat(e.target.value.replace(',', '.'));
                                 if (!isNaN(val)) onUpdatePrice(item.id, val);
