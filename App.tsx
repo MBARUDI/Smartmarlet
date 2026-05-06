@@ -6,7 +6,7 @@ import { CartItem, Product } from './types';
 import { estimateProductPrice } from './services/geminiService';
 import { XMarkIcon, ShoppingBagIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 
-const API_URL = 'http://localhost:3005/api/items';
+const API_URL = import.meta.env.DEV ? 'http://localhost:3005/api/items' : '/api/items';
 
 const App: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
