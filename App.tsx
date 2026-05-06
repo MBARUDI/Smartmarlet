@@ -92,7 +92,8 @@ const App: React.FC = () => {
                     ...item, 
                     estimatedUnitPrice: result.price, 
                     isLoadingPrice: false,
-                    sources: result.sources 
+                    sources: result.sources,
+                    error: result.error
                 };
                 syncToDb(updated);
                 return updated;

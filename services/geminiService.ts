@@ -5,6 +5,7 @@ import { GroundingSource } from "../types";
 export interface PriceResult {
   price: number;
   sources: GroundingSource[];
+  error?: string;
 }
 
 
