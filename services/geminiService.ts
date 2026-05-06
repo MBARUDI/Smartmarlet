@@ -19,46 +19,35 @@ export const estimateProductPrice = async (productName: string): Promise<PriceRe
 
     const genAI = new GoogleGenerativeAI(apiKey);
     
-    // Initialize model with Google Search tool for real-time prices
+    // Using the exact model and version from AI Studio apps
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.0-flash",
-      tools: [
-        {
-          googleSearch: {},
-        },
-      ] as any,
-    }, { apiVersion: 'v1beta' });
+      model: "gemini-1.5-flash"
+    });
 
-    const prompt = `Pesquise o preço médio atual do produto "${productName}" em supermercados no Brasil. 
-    Dê prioridade aos preços praticados no Carrefour (mercado.carrefour.com.br), mas também considere outros grandes varejistas para comparação.
-    Seja realista e conservador. Ignore promoções extremas ou preços de atacado.
-    Retorne APENAS o valor numérico médio encontrado (ex: 15.90). Não use símbolo de moeda. Não escreva texto explicativo.`;
+    const prompt = `Você é um assistente de compras. Pesquise o preço médio atual do produto: "${productName}" em supermercados brasileiros (foco Carrefour).
+    Responda APENAS o valor numérico, usando ponto como separador decimal.
+    Exemplo de resposta: 24.90
+    Se não encontrar, estime baseado no valor de mercado.`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
     
-    // Improved price extraction
-    const cleanText = text.replace(/[^\d.,]/g, '').replace(',', '.');
-    const price = parseFloat(cleanText);
-
-    // Extract grounding sources
-    const sources: GroundingSource[] = [];
-    const candidates = (response as any).candidates;
-    if (candidates && candidates[0]?.groundingMetadata?.groundingChunks) {
-      candidates[0].groundingMetadata.groundingChunks.forEach((chunk: any) => {
-        if (chunk.web && chunk.web.uri) {
-          sources.push({
-            title: chunk.web.title || 'Fonte de pesquisa',
-            uri: chunk.web.uri
-          });
-        }
-      });
+    // Robust price extraction (finds first number with decimals)
+    const matches = text.match(/\d+[.,]\d+/);
+    let price = 0;
+    
+    if (matches) {
+        price = parseFloat(matches[0].replace(',', '.'));
+    } else {
+        // Fallback for integers
+        const intMatches = text.match(/\d+/);
+        if (intMatches) price = parseFloat(intMatches[0]);
     }
 
     return { 
-      price: isNaN(price) ? 0 : price, 
-      sources 
+      price: price || 0, 
+      sources: [] 
     };
   } catch (error: any) {
     console.error("Error estimating price for:", productName, error);
