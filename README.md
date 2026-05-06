@@ -1,20 +1,64 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 🛒 SmartMarket Estimator
 
-# Run and deploy your AI Studio app
+O **SmartMarket Estimator** é uma aplicação inteligente projetada para ajudar consumidores a estimarem o custo total de suas compras em tempo real. Utilizando a potência da **IA Gemini 2.0** e persistência de dados com **Neon PostgreSQL**, ele oferece uma experiência fluida e moderna tanto no desktop quanto no celular.
 
-This contains everything you need to run your app locally.
+## ✨ Funcionalidades
 
-View your app in AI Studio: https://ai.studio/apps/drive/1ps8tjChLDn6QM7XYE3aPfApAdA-wHUpf
+- 🧠 **Busca de Preços via IA**: Utiliza o Google Gemini 2.0 para pesquisar preços médios de mercado na internet em tempo real.
+- 💾 **Persistência em Nuvem**: Carrinho sincronizado com banco de dados Neon PostgreSQL (seus itens não somem ao atualizar a página).
+- 📱 **Design Totalmente Responsivo**: Interface premium otimizada para computadores, tablets e smartphones.
+- 🛒 **Gerenciamento de Carrinho**: Adição rápida de itens, controle de quantidade e edição manual de preços quando necessário.
+- 🔗 **Fontes de Grounding**: Exibe os links das pesquisas realizadas pela IA para maior transparência.
 
-## Run Locally
+## 🚀 Tecnologias Utilizadas
 
-**Prerequisites:**  Node.js
+- **Frontend**: React + Vite + TypeScript
+- **Estilização**: CSS Vanilla (Design Moderno & Glassmorphism)
+- **Ícones**: Heroicons
+- **IA**: Google Generative AI (Gemini 2.0 Flash)
+- **Backend**: Node.js + Express
+- **Banco de Dados**: Neon PostgreSQL (Serverless)
 
+## 🛠️ Como Executar
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### Pré-requisitos
+- Node.js instalado
+- Chave de API do Google Gemini
+- URL de conexão do Neon PostgreSQL
+
+### Instalação
+
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/MBARUDI/Smartmarlet.git
+   ```
+
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+
+3. Configure o arquivo `.env` na raiz do projeto:
+   ```env
+   VITE_GEMINI_API_KEY=sua_chave_aqui
+   DATABASE_URL=sua_url_do_neon_aqui
+   ```
+
+### Executando o Projeto
+
+1. Inicie o servidor backend:
+   ```bash
+   npm run server
+   ```
+
+2. Inicie o frontend (em outro terminal):
+   ```bash
+   npm run dev
+   ```
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+---
+Desenvolvido com ❤️ por [MBARUDI](https://github.com/MBARUDI)
