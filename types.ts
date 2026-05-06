@@ -19,6 +19,7 @@ export interface CartItem extends Product {
   sources?: GroundingSource[];
   error?: string;
   suggestedPrice?: number;
+  isCollected?: boolean;
 }
 
 export interface CartSummary {

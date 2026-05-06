@@ -23,12 +23,14 @@ async function initDb() {
         quantity INTEGER DEFAULT 1,
         estimated_unit_price NUMERIC,
         is_loading_price BOOLEAN DEFAULT FALSE,
-        sources JSONB DEFAULT '[]'
+        sources JSONB DEFAULT '[]',
+        is_collected BOOLEAN DEFAULT FALSE
       )
     `;
     // Ensure the is_loading_price column exists (migration)
     await sql`ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS is_loading_price BOOLEAN DEFAULT FALSE`;
     await sql`ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS sources JSONB DEFAULT '[]'`;
+    await sql`ALTER TABLE cart_items ADD COLUMN IF NOT EXISTS is_collected BOOLEAN DEFAULT FALSE`;
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Database initialization failed:', error);
@@ -46,7 +48,8 @@ app.get('/api/items', async (req, res) => {
       quantity: item.quantity,
       estimatedUnitPrice: item.estimated_unit_price ? parseFloat(item.estimated_unit_price) : null,
       isLoadingPrice: item.is_loading_price,
-      sources: item.sources || []
+      sources: item.sources || [],
+      isCollected: item.is_collected || false
     }));
     res.json(formattedItems);
   } catch (error) {
@@ -56,18 +59,19 @@ app.get('/api/items', async (req, res) => {
 
 // POST (Upsert) item
 app.post('/api/items', async (req, res) => {
-  const { id, name, category, quantity, estimatedUnitPrice, isLoadingPrice, sources } = req.body;
+  const { id, name, category, quantity, estimatedUnitPrice, isLoadingPrice, sources, isCollected } = req.body;
   try {
     await sql`
-      INSERT INTO cart_items (id, name, category, quantity, estimated_unit_price, is_loading_price, sources)
-      VALUES (${id}, ${name}, ${category}, ${quantity}, ${estimatedUnitPrice}, ${isLoadingPrice}, ${JSON.stringify(sources)})
+      INSERT INTO cart_items (id, name, category, quantity, estimated_unit_price, is_loading_price, sources, is_collected)
+      VALUES (${id}, ${name}, ${category}, ${quantity}, ${estimatedUnitPrice}, ${isLoadingPrice}, ${JSON.stringify(sources)}, ${isCollected || false})
       ON CONFLICT (id) DO UPDATE SET
         name = EXCLUDED.name,
         category = EXCLUDED.category,
         quantity = EXCLUDED.quantity,
         estimated_unit_price = EXCLUDED.estimated_unit_price,
         is_loading_price = EXCLUDED.is_loading_price,
-        sources = EXCLUDED.sources
+        sources = EXCLUDED.sources,
+        is_collected = EXCLUDED.is_collected
     `;
     res.json({ success: true });
   } catch (error) {

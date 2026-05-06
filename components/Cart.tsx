@@ -9,9 +9,10 @@ interface CartProps {
   onRemove: (id: string) => void;
   onUpdateQuantity: (id: string, delta: number) => void;
   onUpdatePrice: (id: string, newPrice: number) => void;
+  onFinalize: () => void;
 }
 
-const Cart: React.FC<CartProps> = ({ items, onRemove, onUpdateQuantity, onUpdatePrice }) => {
+const Cart: React.FC<CartProps> = ({ items, onRemove, onUpdateQuantity, onUpdatePrice, onFinalize }) => {
   const totalQuantity = items.reduce((acc, item) => acc + item.quantity, 0);
   const totalPrice = items.reduce((acc, item) => acc + (item.quantity * (item.estimatedUnitPrice || 0)), 0);
 
@@ -189,7 +190,18 @@ const Cart: React.FC<CartProps> = ({ items, onRemove, onUpdateQuantity, onUpdate
         )}
       </div>
       
-      <div className="p-4 bg-slate-900 text-center shrink-0">
+      <div className="p-4 bg-white border-t border-slate-200 shrink-0">
+        <button 
+          onClick={onFinalize}
+          disabled={items.length === 0}
+          className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mb-2"
+        >
+          <ShoppingCartIcon className="w-5 h-5" />
+          Finalizar Compra
+        </button>
+      </div>
+      
+      <div className="p-3 bg-slate-900 text-center shrink-0">
         <p className="text-[9px] text-slate-400 leading-tight uppercase font-bold tracking-widest">
           Os preços mostrados são estimativas baseadas em dados públicos de mercado.
         </p>
