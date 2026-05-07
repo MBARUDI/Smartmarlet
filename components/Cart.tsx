@@ -95,58 +95,47 @@ const Cart: React.FC<CartProps> = ({ items, onRemove, onUpdateQuantity, onUpdate
                    
                    <div className="h-6 w-px bg-slate-200"></div>
 
-                   <div className="flex flex-col">
+                   <div className="flex flex-col group">
                      {item.isLoadingPrice ? (
                        <div className="flex items-center gap-1.5 text-blue-500 animate-pulse">
                          <ArrowPathIcon className="w-3 h-3 animate-spin" />
                          <span className="text-[10px] font-bold uppercase">Buscando...</span>
                        </div>
-                     ) : (item.estimatedUnitPrice === 0 || item.estimatedUnitPrice === null) ? (
-                       <div className="bg-orange-50 border border-orange-200 p-2 rounded-lg mt-1 flex flex-col gap-2">
-                          <div className="flex items-center gap-1 text-orange-700">
-                             <ExclamationCircleIcon className="w-3.5 h-3.5" />
-                             <span className="text-[10px] font-bold uppercase tracking-tight">
-                               {item.error || 'Preço não encontrado'}
-                             </span>
-                          </div>
-                          
-                          {item.suggestedPrice && (
-                            <div className="bg-white/50 border border-orange-100 rounded p-1.5 flex flex-col gap-1">
-                               <span className="text-[9px] text-slate-500 font-bold uppercase">Sugestão do Mercado:</span>
-                               <button 
-                                 onClick={() => onUpdatePrice(item.id, item.suggestedPrice!)}
-                                 className="text-xs font-black text-orange-600 hover:text-orange-700 flex justify-between items-center group"
-                               >
-                                 {formatCurrency(item.suggestedPrice)}
-                                 <span className="text-[8px] bg-orange-100 px-1 rounded group-hover:bg-orange-200 transition-colors">USAR ESTE</span>
-                               </button>
-                            </div>
-                          )}
-
-                          <div className="flex items-center bg-white border border-orange-200 rounded px-2 py-1">
-                            <span className="text-[10px] font-bold text-slate-400 mr-1">R$</span>
-                            <input 
-                              type="number"
-                              step="0.01"
-                              placeholder="0,00"
-                              className="w-full text-xs font-bold text-slate-800 outline-none"
-                              onBlur={(e) => {
-                                const val = parseFloat(e.target.value.replace(',', '.'));
-                                if (!isNaN(val)) onUpdatePrice(item.id, val);
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    const val = parseFloat(e.currentTarget.value.replace(',', '.'));
-                                    if (!isNaN(val)) onUpdatePrice(item.id, val);
-                                }
-                              }}
-                            />
-                          </div>
-                       </div>
                      ) : (
-                        <span className="text-xs font-bold text-slate-500">
-                           {formatCurrency(item.estimatedUnitPrice)}/un
-                        </span>
+                       <div className="flex flex-col gap-1">
+                         <div className="flex items-center gap-2">
+                           <div className="relative flex items-center bg-white border border-slate-200 rounded-lg px-2 py-1 focus-within:ring-2 focus-within:ring-green-500/20 focus-within:border-green-500 transition-all">
+                             <span className="text-[10px] font-bold text-slate-400 mr-1">R$</span>
+                             <input 
+                               type="number"
+                               step="0.01"
+                               value={item.estimatedUnitPrice || ''}
+                               onChange={(e) => {
+                                 const val = parseFloat(e.target.value);
+                                 if (!isNaN(val)) onUpdatePrice(item.id, val);
+                               }}
+                               className="w-16 text-sm font-black text-slate-800 outline-none bg-transparent"
+                               placeholder="0.00"
+                             />
+                           </div>
+                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">/un</span>
+                         </div>
+                         
+                         {item.suggestedPrice && !item.error && (
+                            <span className="text-[9px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider w-fit border border-blue-100">
+                              Valor de Referência
+                            </span>
+                         )}
+
+                         {item.error && (
+                           <div className="flex items-center gap-1 text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded border border-orange-100 w-fit">
+                              <ExclamationCircleIcon className="w-3 h-3" />
+                              <span className="text-[9px] font-bold uppercase tracking-tighter">
+                                {item.error}
+                              </span>
+                           </div>
+                         )}
+                       </div>
                      )}
                    </div>
                 </div>

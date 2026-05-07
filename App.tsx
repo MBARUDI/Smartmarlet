@@ -5,6 +5,7 @@ import Cart from './components/Cart';
 import { CartItem, Product } from './types';
 import { estimateProductPrice } from './services/geminiService';
 import { XMarkIcon, ShoppingBagIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
+import { COMMON_PRODUCTS } from './constants';
 
 const API_URL = import.meta.env.DEV ? 'http://localhost:3005/api/items' : '/api/items';
 
@@ -12,7 +13,6 @@ const App: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [view, setView] = useState<'editing' | 'shopping'>('editing');
   const [view, setView] = useState<'editing' | 'shopping'>('editing');
 
   // Load items from database on mount
@@ -30,15 +30,6 @@ const App: React.FC = () => {
     };
     fetchItems();
   }, []);
-
-  const handleToggleCollected = async (id: string) => {
-    const item = cartItems.find(i => i.id === id);
-    if (!item) return;
-
-    const updatedItem = { ...item, isCollected: !item.isCollected };
-    setCartItems(prev => prev.map(i => i.id === id ? updatedItem : i));
-    await syncToDb(updatedItem);
-  };
 
   const handleToggleCollected = async (id: string) => {
     const item = cartItems.find(i => i.id === id);
@@ -102,18 +93,24 @@ const App: React.FC = () => {
         await syncToDb(updatedItem);
     }
 
-    // Only fetch price if it's a new item or doesn't have a price
+    // Fetch price from Gemini
     const result = await estimateProductPrice(product.name);
     
     setCartItems((prev) => 
         prev.map(item => {
             if (item.id === productId) {
+                // Fallback to suggested price if Gemini fails or returns 0
+                const fallbackPrice = COMMON_PRODUCTS.find(p => p.name === product.name)?.suggestedPrice;
+                const finalPrice = result.price || fallbackPrice || 0;
+                const hasError = !result.price && !fallbackPrice;
+
                 const updated = { 
                     ...item, 
-                    estimatedUnitPrice: result.price, 
+                    estimatedUnitPrice: finalPrice, 
                     isLoadingPrice: false,
                     sources: result.sources,
-                    error: result.error
+                    error: hasError ? (result.error || 'Preço não encontrado') : undefined,
+                    suggestedPrice: fallbackPrice
                 };
                 syncToDb(updated);
                 return updated;
