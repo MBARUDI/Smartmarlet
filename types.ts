@@ -20,10 +20,19 @@ export interface CartItem extends Product {
   error?: string;
   suggestedPrice?: number;
   isCollected?: boolean;
+  userId?: string;
 }
 
 export interface CartSummary {
   totalItems: number;
   totalEstimatedPrice: number;
   isCalculating: boolean;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  receivePromotions: boolean;
 }

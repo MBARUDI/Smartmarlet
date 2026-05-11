@@ -2,24 +2,42 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import ProductList from './components/ProductList';
 import Cart from './components/Cart';
-import { CartItem, Product } from './types';
-import { estimateProductPrice } from './services/geminiService';
-import { XMarkIcon, ShoppingBagIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, ShoppingBagIcon, ShoppingCartIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 import { COMMON_PRODUCTS } from './constants';
+import Auth from './components/Auth';
+import { CartItem, Product, User } from './types';
+import { estimateProductPrice } from './services/geminiService';
 
 const API_URL = import.meta.env.DEV ? 'http://localhost:3005/api/items' : '/api/items';
 
 const App: React.FC = () => {
+  const [user, setUser] = useState<User | null>(() => {
+    const saved = localStorage.getItem('smartmarket_user');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [view, setView] = useState<'editing' | 'shopping'>('editing');
 
+  const handleLogin = (newUser: User) => {
+    setUser(newUser);
+    localStorage.setItem('smartmarket_user', JSON.stringify(newUser));
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setCartItems([]);
+    localStorage.removeItem('smartmarket_user');
+    setView('editing');
+  };
+
   // Load items from database on mount
   useEffect(() => {
+    if (!user) return;
     const fetchItems = async () => {
       try {
-        const response = await fetch(API_URL);
+        const response = await fetch(`${API_URL}?userId=${user.id}`);
         if (response.ok) {
           const data = await response.json();
           setCartItems(data);
@@ -29,7 +47,7 @@ const App: React.FC = () => {
       }
     };
     fetchItems();
-  }, []);
+  }, [user]);
 
   const handleToggleCollected = async (id: string) => {
     const item = cartItems.find(i => i.id === id);
@@ -42,11 +60,12 @@ const App: React.FC = () => {
 
   // Helper to sync an item to the database
   const syncToDb = async (item: CartItem) => {
+    if (!user) return;
     try {
       await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(item),
+        body: JSON.stringify({ ...item, userId: user.id }),
       });
     } catch (error) {
       console.error('Failed to sync item to DB:', error);
@@ -241,28 +260,33 @@ const App: React.FC = () => {
     );
   }
 
+  if (!user) {
+    return <Auth onLogin={handleLogin} />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
-      <header className="md:hidden bg-slate-900 text-white p-4 flex justify-between items-center sticky top-0 z-30 shadow-lg">
-        <h1 className="text-lg font-bold flex items-center gap-2">
-            <ShoppingBagIcon className="w-6 h-6 text-green-400" />
-            <span className="text-green-400">Smart</span>Market
-        </h1>
-        <button 
-            onClick={() => setIsMobileCartOpen(true)}
-            className="relative p-2"
-        >
-            <div className="w-6 h-6 flex flex-col gap-1 items-end justify-center">
-                <span className="block w-6 h-0.5 bg-white"></span>
-                <span className="block w-4 h-0.5 bg-white"></span>
-                <span className="block w-5 h-0.5 bg-white"></span>
+      <header className="bg-slate-900 text-white p-4 flex justify-between items-center sticky top-0 z-30 shadow-lg">
+        <div className="max-w-7xl mx-auto w-full flex justify-between items-center px-4 md:px-0">
+          <h1 className="text-xl font-black flex items-center gap-2">
+              <ShoppingBagIcon className="w-8 h-8 text-green-400" />
+              <span className="text-green-400">Smart</span>Market
+          </h1>
+          
+          <div className="flex items-center gap-4">
+            <div className="hidden md:block text-right">
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none">Bem-vindo,</p>
+              <p className="text-sm font-bold text-white">{user.name}</p>
             </div>
-            {totalCartItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-900">
-                    {totalCartItems}
-                </span>
-            )}
-        </button>
+            <button 
+                onClick={handleLogout}
+                className="flex items-center gap-2 bg-slate-800 hover:bg-red-900/40 text-slate-300 hover:text-red-400 px-4 py-2 rounded-xl transition-all font-bold text-xs uppercase tracking-widest border border-slate-700 hover:border-red-900/50"
+            >
+                <ArrowRightOnRectangleIcon className="w-4 h-4" />
+                <span className="hidden sm:inline">Sair</span>
+            </button>
+          </div>
+        </div>
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
